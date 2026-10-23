@@ -517,7 +517,9 @@
 
 <footer>
   <span>数据保存在浏览器本地 · 2026年10月 - 12月</span>
+  <button id="importBtn">导入数据备份</button>
   <button id="exportBtn">导出数据备份</button>
+  <input type="file" id="importFile" accept="application/json,.json" hidden>
 </footer>
 
 <div class="modal-overlay hidden" id="dayModal">
@@ -2436,6 +2438,47 @@ $('exportBtn').addEventListener('click', function () {
   a.download = '星途备份_' + d2k(new Date()) + '.json';
   a.click();
   URL.revokeObjectURL(a.href);
+});
+
+/* ===== 导入 ===== */
+$('importBtn').addEventListener('click', function () { $('importFile').click(); });
+$('importFile').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    var data;
+    try {
+      data = JSON.parse(reader.result);
+    } catch (err) {
+      alert('导入失败：不是有效的备份文件');
+      return;
+    }
+    if (!data || typeof data !== 'object') {
+      alert('导入失败：文件格式不正确');
+      return;
+    }
+    var specs = [
+      ['logs', 'tsj-logs', function (v) { return v && typeof v === 'object' && !Array.isArray(v); }],
+      ['habits', 'tsj-habits', function (v) { return Array.isArray(v); }],
+      ['journal', 'tsj-journal', function (v) { return v && typeof v === 'object' && !Array.isArray(v); }],
+      ['marks', 'tsj-marks', function (v) { return v && typeof v === 'object' && !Array.isArray(v); }],
+      ['todos', 'tsj-todos', function (v) { return v && typeof v === 'object' && Array.isArray(v.cats); }]
+    ];
+    var ok = 0;
+    specs.forEach(function (sp) {
+      var v = data[sp[0]];
+      if (v !== undefined && v !== null && sp[2](v)) {
+        save(sp[1], v);
+        ok++;
+      }
+    });
+    if (!ok) { alert('导入失败：文件里没有可识别的数据'); return; }
+    alert('导入成功，共恢复 ' + ok + ' 类数据，页面将自动刷新。');
+    location.reload();
+  };
+  reader.readAsText(f, 'UTF-8');
+  e.target.value = '';
 });
 
 /* ===== 启动 ===== */
