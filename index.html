@@ -880,7 +880,7 @@ var planetRocks = [];
 
 (function () {
   var rnd = mulberry32(4242);
-  for (var i = 0; i < 150; i++) {
+  for (var i = 0; i < 90; i++) {
     planetStars.push({ x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.2, b: 0.3 + rnd() * 0.5, p: rnd() * Math.PI * 2, sp: 0.3 + rnd() * 0.8 });
   }
   for (var i = 0; i < 70; i++) {
@@ -1166,7 +1166,7 @@ var habitFar = [];
 
 (function () {
   var rnd = mulberry32(909);
-  for (var i = 0; i < 150; i++) {
+  for (var i = 0; i < 90; i++) {
     habitStars.push({
       x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.5, b: 0.25 + rnd() * 0.62,
       p: rnd() * Math.PI * 2, sp: 0.35 + rnd() * 1.1,
@@ -2238,7 +2238,7 @@ var journalFar = [];
 
 (function () {
   var rnd = mulberry32(1313);
-  for (var i = 0; i < 140; i++) {
+  for (var i = 0; i < 85; i++) {
     journalStars.push({
       x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.4, b: 0.25 + rnd() * 0.6,
       p: rnd() * Math.PI * 2, sp: 0.35 + rnd() * 1.1,
@@ -2294,7 +2294,11 @@ function updateStars(ctx, stars, w, h, t, dtwk) {
   ctx.fillStyle = '#FFFFFF';
   for (var i = 0; i < stars.length; i++) {
     var st = stars[i];
-    var a = st.b * (0.94 + 0.06 * Math.sin(t / 5200 + st.p));
+    st.x += st.vx; st.y += st.vy;
+    if (st.x < -0.02) st.x = 1.02; if (st.x > 1.02) st.x = -0.02;
+    if (st.y < -0.02) st.y = 1.02; if (st.y > 1.02) st.y = -0.02;
+    var tw = st.tw == null ? 0.2 : st.tw;
+    var a = st.b * (1 - tw + tw * (0.5 + 0.5 * Math.sin(t / 2600 * st.sp + st.p)));
     ctx.globalAlpha = Math.max(0, Math.min(1, a));
     ctx.beginPath();
     ctx.arc(st.x * w, st.y * h, st.s, 0, Math.PI * 2);
