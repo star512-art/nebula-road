@@ -740,7 +740,7 @@ function makeGalaxy(seed, size, arms) {
     put(x, y, (1 - d * d) * (0.35 + rnd() * 0.65));
   }
 
-  for (i = 0; i < 3200; i++) {
+  for (var i = 0; i < 3200; i++) {
     var tt = Math.pow(rnd(), 0.72);
     var d2 = tt * R * 0.94;
     var arm = (i % arms) * (Math.PI * 2 / arms);
@@ -751,7 +751,7 @@ function makeGalaxy(seed, size, arms) {
     put(sx, sy, edge * (0.30 + rnd() * 0.70));
   }
 
-  for (i = 0; i < 16; i++) {
+  for (var i = 0; i < 16; i++) {
     var a2 = rnd() * Math.PI * 2, d3 = Math.sqrt(rnd()) * R * 0.85;
     g.globalAlpha = 0.85;
     g.fillStyle = '#FFFFFF';
@@ -867,7 +867,7 @@ var planetRocks = [];
   for (var i = 0; i < 340; i++) {
     planetStars.push({ x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.2, b: 0.3 + rnd() * 0.5, p: rnd() * Math.PI * 2, sp: 0.3 + rnd() * 0.8 });
   }
-  for (i = 0; i < 70; i++) {
+  for (var i = 0; i < 70; i++) {
     planetRocks.push({
       a: rnd() * Math.PI * 2,
       rf: 1.35 + rnd() * 0.9,
@@ -920,7 +920,7 @@ function drawMars(ctx, cx, cy, R, spin) {
       ctx.ellipse(cx + Math.cos(a) * d, cy + Math.sin(a) * d, R * (0.08 + rnd() * 0.15), R * (0.05 + rnd() * 0.09), rnd() * 3, 0, Math.PI * 2);
       ctx.fill();
     }
-    for (i = 0; i < 26; i++) {
+    for (var i = 0; i < 26; i++) {
       var a2 = rnd() * Math.PI * 2, d2 = Math.sqrt(rnd()) * R * 0.85;
       ctx.fillStyle = 'rgba(40,18,14,0.25)';
       ctx.beginPath();
@@ -1158,7 +1158,7 @@ var habitFar = [];
       tw: 0.35 + rnd() * 0.5
     });
   }
-  for (i = 0; i < 180; i++) {
+  for (var i = 0; i < 180; i++) {
     habitFar.push({ a: rnd() * Math.PI * 2, r: 0.32 + rnd() * 0.68, s: 0.3 + rnd() * 0.9, tw: 0.5 + rnd() * 1.6, p: rnd() * Math.PI * 2 });
   }
 })();
@@ -1187,7 +1187,7 @@ function drawCrabScene(t) {
   ctx.rotate(t * 0.000008);
   ctx.translate(-scx, -scy);
   ctx.fillStyle = 'rgba(210,228,255,0.9)';
-  for (i = 0; i < habitFar.length; i++) {
+  for (var i = 0; i < habitFar.length; i++) {
     var f = habitFar[i];
     var rr = f.r * Math.min(w, h);
     var fx = scx + Math.cos(f.a) * rr;
@@ -1237,7 +1237,7 @@ function renderCalendar() {
   var ws = startOfWeek(new Date());
   var st = { min: 0, checks: 0, days: 0 };
   var i;
-  for (i = 0; i < 7; i++) {
+  for (var i = 0; i < 7; i++) {
     var k = d2k(addDays(ws, i));
     (logs[k] || []).forEach(function (l) { st.min += l.minutes; });
     if (journal[k]) st.days += 1;
@@ -1257,7 +1257,7 @@ function renderCalendar() {
 
   var grid = $('grid');
   grid.innerHTML = '';
-  for (i = 0; i < startIdx; i++) {
+  for (var i = 0; i < startIdx; i++) {
     var emp = document.createElement('div');
     emp.className = 'day empty';
     grid.appendChild(emp);
@@ -2254,7 +2254,7 @@ var journalFar = [];
       tw: 0.35 + rnd() * 0.5
     });
   }
-  for (i = 0; i < 160; i++) {
+  for (var i = 0; i < 160; i++) {
     journalFar.push({ a: rnd() * Math.PI * 2, r: 0.32 + rnd() * 0.68, s: 0.3 + rnd() * 0.9, tw: 0.5 + rnd() * 1.6, p: rnd() * Math.PI * 2 });
   }
 })();
@@ -2338,7 +2338,7 @@ function drawJournalScene(t) {
   ctx.rotate(t * 0.000008);
   ctx.translate(-scx, -scy);
   ctx.fillStyle = 'rgba(210,228,255,0.9)';
-  for (i = 0; i < journalFar.length; i++) {
+  for (var i = 0; i < journalFar.length; i++) {
     var f = journalFar[i];
     var rr = f.r * Math.min(w, h);
     var fx = scx + Math.cos(f.a) * rr;
