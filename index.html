@@ -158,7 +158,7 @@
   .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .day {
     background: rgba(10, 14, 30, 0.66); border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px; min-height: 118px; padding: 8px; display: flex; flex-direction: column;
+    border-radius: 14px; height: 124px; padding: 8px; display: flex; flex-direction: column;
     cursor: pointer; transition: border-color .2s, box-shadow .2s;
     backdrop-filter: blur(4px);
   }
@@ -181,7 +181,10 @@
     font-size: 10px; padding: 2px 7px; border-radius: 10px; color: #16162A;
     background: var(--gold2); font-weight: 600; white-space: nowrap;
   }
-  .acts { display: flex; flex-direction: column; gap: 3px; overflow: hidden; flex: 1; }
+  .acts { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent; }
+  .acts::-webkit-scrollbar { width: 5px; }
+  .acts::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 3px; }
+  .acts::-webkit-scrollbar-track { background: transparent; }
   .act { display: flex; align-items: center; gap: 5px; font-size: 11.5px; line-height: 1.35; padding: 2px 3px; border-radius: 6px; animation: fadeIn .18s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
   .act .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -324,6 +327,19 @@
     #journalText { min-height: 300px; }
   }
   .journal-list { max-height: none; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding: 10px; }
+  .journal-folder { margin-bottom: 4px; }
+  .journal-folder-head {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+    border-radius: 10px; cursor: pointer; font-size: 13px; color: var(--text);
+    background: rgba(255,255,255,0.045); transition: background .15s;
+    user-select: none;
+  }
+  .journal-folder-head:hover { background: rgba(255,255,255,0.09); }
+  .jf-arrow { font-size: 9px; width: 10px; color: var(--dim); transition: transform .18s ease; display: inline-block; }
+  .journal-folder.open .jf-arrow { transform: rotate(90deg); }
+  .jf-name { font-weight: 600; letter-spacing: 1px; }
+  .jf-count { margin-left: auto; font-size: 11px; color: var(--dim); }
+  .journal-folder-body { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; padding-left: 8px; }
   .journal-item {
     padding: 9px 12px; border-radius: 10px; cursor: pointer; font-size: 13px;
     display: flex; justify-content: space-between; align-items: center; color: var(--dim);
@@ -365,7 +381,7 @@
   ::-webkit-scrollbar-track { background: transparent; }
 
   @media (max-width: 900px) {
-    .day { min-height: 84px; padding: 5px; }
+    .day { height: 92px; padding: 5px; }
     .act { font-size: 10.5px; }
     .title { font-size: 17px; letter-spacing: 2px; }
     .month-label { font-size: 15px; min-width: 130px; }
@@ -1150,7 +1166,7 @@ var habitFar = [];
 
 (function () {
   var rnd = mulberry32(909);
-  for (var i = 0; i < 700; i++) {
+  for (var i = 0; i < 340; i++) {
     habitStars.push({
       x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.5, b: 0.25 + rnd() * 0.62,
       p: rnd() * Math.PI * 2, sp: 0.35 + rnd() * 1.1,
@@ -1179,30 +1195,9 @@ function drawCrabScene(t) {
   ctx.fillStyle = '#04050C';
   ctx.fillRect(0, 0, w, h);
 
-  updateStars(ctx, habitStars, w, h, t, true);
+  updateStars(ctx, habitStars, w, h, t);
 
-  ctx.save();
   var scx = w * 0.5, scy = h * 0.46;
-  ctx.translate(scx, scy);
-  ctx.rotate(t * 0.000008);
-  ctx.translate(-scx, -scy);
-  ctx.fillStyle = 'rgba(210,228,255,0.9)';
-  for (var i = 0; i < habitFar.length; i++) {
-    var f = habitFar[i];
-    var rr = f.r * Math.min(w, h);
-    var fx = scx + Math.cos(f.a) * rr;
-    var fy = scy + Math.sin(f.a) * rr * 0.72;
-    ctx.globalAlpha = 0.16 + 0.24 * Math.sin(t / 2000 * f.tw + f.p);
-    ctx.beginPath();
-    ctx.arc(fx, fy, f.s, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-  ctx.restore();
-
-  if (Math.random() < 0.012 && habitShooters.length < 3) spawnShooter(w, h, habitShooters);
-  drawShooters(ctx, habitShooters, w, h);
-
   var vig = ctx.createRadialGradient(scx, scy, 0, scx, scy, Math.max(w, h) * 0.9);
   vig.addColorStop(0, 'rgba(4,5,12,0)');
   vig.addColorStop(1, 'rgba(4,5,12,0.92)');
@@ -1303,7 +1298,7 @@ function renderCalendar() {
 
       var acts = document.createElement('div');
       acts.className = 'acts';
-      dayLogs.slice(0, 3).forEach(function (l) {
+      dayLogs.forEach(function (l) {
         var row = document.createElement('div');
         row.className = 'act';
         var tgts = l.tags && l.tags.length ? l.tags : [UNTAGGED];
@@ -1313,12 +1308,9 @@ function renderCalendar() {
           '<span class="at">' + fmtHour(l.minutes) + '</span>';
         acts.appendChild(row);
       });
-      if (dayLogs.length > 3) {
-        var more = document.createElement('div');
-        more.className = 'act-more';
-        more.textContent = '+' + (dayLogs.length - 3) + ' 项';
-        acts.appendChild(more);
-      }
+      acts.addEventListener('wheel', function (e) {
+        if (this.scrollHeight > this.clientHeight) { e.stopPropagation(); }
+      }, { passive: true });
       cell.appendChild(acts);
       grid.appendChild(cell);
     })(d);
@@ -2246,7 +2238,7 @@ var journalFar = [];
 
 (function () {
   var rnd = mulberry32(1313);
-  for (var i = 0; i < 620; i++) {
+  for (var i = 0; i < 320; i++) {
     journalStars.push({
       x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.4, b: 0.25 + rnd() * 0.6,
       p: rnd() * Math.PI * 2, sp: 0.35 + rnd() * 1.1,
@@ -2302,11 +2294,7 @@ function updateStars(ctx, stars, w, h, t, dtwk) {
   ctx.fillStyle = '#FFFFFF';
   for (var i = 0; i < stars.length; i++) {
     var st = stars[i];
-    st.x += st.vx; st.y += st.vy;
-    if (st.x < -0.02) st.x = 1.02; if (st.x > 1.02) st.x = -0.02;
-    if (st.y < -0.02) st.y = 1.02; if (st.y > 1.02) st.y = -0.02;
-    var tw = st.tw == null ? 0.2 : st.tw;
-    var a = st.b * (1 - tw + tw * (0.5 + 0.5 * Math.sin(t / 1400 * st.sp + st.p)));
+    var a = st.b * (0.94 + 0.06 * Math.sin(t / 5200 + st.p));
     ctx.globalAlpha = Math.max(0, Math.min(1, a));
     ctx.beginPath();
     ctx.arc(st.x * w, st.y * h, st.s, 0, Math.PI * 2);
@@ -2330,31 +2318,7 @@ function drawJournalScene(t) {
   ctx.fillStyle = '#04050C';
   ctx.fillRect(0, 0, w, h);
 
-  updateStars(ctx, journalStars, w, h, t, true);
-
-  ctx.save();
-  var scx = w * 0.5, scy = h * 0.44;
-  ctx.translate(scx, scy);
-  ctx.rotate(t * 0.000008);
-  ctx.translate(-scx, -scy);
-  ctx.fillStyle = 'rgba(210,228,255,0.9)';
-  for (var i = 0; i < journalFar.length; i++) {
-    var f = journalFar[i];
-    var rr = f.r * Math.min(w, h);
-    var fx = scx + Math.cos(f.a) * rr;
-    var fy = scy + Math.sin(f.a) * rr * 0.72;
-    ctx.globalAlpha = 0.16 + 0.24 * Math.sin(t / 2000 * f.tw + f.p);
-    ctx.beginPath();
-    ctx.arc(fx, fy, f.s, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-  ctx.restore();
-
-  if (Math.random() < 0.012 && journalShooters.length < 3) spawnShooter(w, h, journalShooters);
-  drawShooters(ctx, journalShooters, w, h);
-
-  var cx = w * 0.82, cy = h * 0.78;
+  updateStars(ctx, journalStars, w, h, t);
 
   var vig = ctx.createRadialGradient(w * 0.5, h * 0.44, 0, w * 0.5, h * 0.44, Math.max(w, h) * 0.9);
   vig.addColorStop(0, 'rgba(4,5,12,0)');
@@ -2367,29 +2331,65 @@ function drawJournalScene(t) {
 var rangeStart = new Date(YEAR, 9, 1), rangeEnd = new Date(YEAR, 11, 31);
 var journalSel = d2k(new Date() >= rangeStart && new Date() <= rangeEnd ? new Date() : rangeStart);
 
+var journalOpen = {};
+
 function renderJournalList() {
   var box = $('journalList');
   box.innerHTML = '';
-  var d = new Date(rangeEnd.getTime());
-  while (d >= rangeStart) {
-    (function (dt) {
-      var k = d2k(dt);
-      var item = document.createElement('div');
-      item.className = 'journal-item' + (k === journalSel ? ' sel' : '');
-      var left = document.createElement('span');
-      left.textContent = (dt.getMonth() + 1) + '/' + dt.getDate() + ' 周' + WD[(dt.getDay() + 6) % 7];
-      item.appendChild(left);
-      if (journal[k]) {
-        var has = document.createElement('span');
-        has.className = 'has';
-        has.textContent = '●';
-        item.appendChild(has);
-      }
-      item.addEventListener('click', function () { journalSel = k; renderJournal(); });
-      box.appendChild(item);
-      d = addDays(d, -1);
-    })(d);
-  }
+  var selMon = k2d(journalSel).getMonth();
+
+  MONTHS.forEach(function (mi) {
+    var nD = daysInMonth(YEAR, mi);
+    var count = 0;
+    for (var dd = 1; dd <= nD; dd++) {
+      if (journal[d2k(new Date(YEAR, mi, dd))]) count++;
+    }
+    if (journalOpen[mi] === undefined) journalOpen[mi] = (mi === selMon);
+
+    var folder = document.createElement('div');
+    folder.className = 'journal-folder' + (journalOpen[mi] ? ' open' : '');
+
+    var head = document.createElement('div');
+    head.className = 'journal-folder-head';
+    head.innerHTML =
+      '<span class="jf-arrow">▶</span>' +
+      '<span class="jf-name">' + YEAR + '年' + (mi + 1) + '月</span>' +
+      '<span class="jf-count">' + (count ? count + ' 篇' : '') + '</span>';
+    head.addEventListener('click', function () {
+      journalOpen[mi] = !journalOpen[mi];
+      renderJournalList();
+    });
+    folder.appendChild(head);
+
+    var body = document.createElement('div');
+    body.className = 'journal-folder-body';
+    body.hidden = !journalOpen[mi];
+
+    for (var day = 1; day <= nD; day++) {
+      (function (dt) {
+        var k = d2k(dt);
+        var item = document.createElement('div');
+        item.className = 'journal-item' + (k === journalSel ? ' sel' : '');
+        var left = document.createElement('span');
+        left.textContent = (dt.getMonth() + 1) + '/' + dt.getDate() + ' 周' + WD[(dt.getDay() + 6) % 7];
+        item.appendChild(left);
+        if (journal[k]) {
+          var has = document.createElement('span');
+          has.className = 'has';
+          has.textContent = '●';
+          item.appendChild(has);
+        }
+        item.addEventListener('click', function () {
+          journalSel = k;
+          journalOpen[mi] = true;
+          renderJournal();
+        });
+        body.appendChild(item);
+      })(new Date(YEAR, mi, day));
+    }
+    folder.appendChild(body);
+    box.appendChild(folder);
+  });
 }
 
 function renderJournal() {
